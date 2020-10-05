@@ -22,6 +22,7 @@ public class HighAlcher extends AbstractScript {
 	State state;
 	int spot;
 	int alchCounter = 0;
+	int antibanCounter = 0;
 	boolean antiban = false;
 	
 	Spell highAlch = Normal.HIGH_LEVEL_ALCHEMY;
@@ -80,7 +81,7 @@ public class HighAlcher extends AbstractScript {
 				alchCounter++;
 				
 				// every 99-101 alch move mouse outside screen
-				if (alchCounter%randomNum(1,10) == 0)
+				if (alchCounter%randomNum(97,101) == 0)
 					antiban = true;
 				
 				break;
@@ -101,15 +102,19 @@ public class HighAlcher extends AbstractScript {
 				
 				break;
 			case 2:
+				// randomize typing speed every time
+				Keyboard.setWordsPerMinute(randomNum(50,100));
+				
 				// imitate that human is talking in the chat
 				Keyboard.type(messages[randomNum(0,2)]);
 				
 				// take a short break after typing
-				sleep(3000,6000);
+				sleep(2000,5000);
 				
 				break;
 			}
 			
+			antibanCounter++;
 			antiban = false;
 			
 			break;
@@ -183,6 +188,7 @@ public class HighAlcher extends AbstractScript {
 		g.setFont(new Font("Arial", Font.BOLD, 15));
 		g.drawString("Alch count: " + alchCounter, 15, 266);
 		g.drawString("Xp gained: " + (alchCounter * 65), 15, 282);
+		g.drawString("Antiban count: " + antibanCounter, 15, 298);
 	}
 
 }
