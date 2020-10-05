@@ -3,17 +3,25 @@ import java.awt.Font;
 import java.awt.Graphics;
 
 import org.dreambot.api.Client;
+import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.magic.Magic;
+import org.dreambot.api.methods.magic.Normal;
+import org.dreambot.api.methods.magic.Spell;
 import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.worldhopper.WorldHopper;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
+import org.dreambot.api.wrappers.items.Item;
 
 @ScriptManifest(author = "mazurrek", description = "Casts high alchemy", name = "HighAlcher", category = Category.MAGIC, version = 1)
 public class HighAlcher extends AbstractScript {
 
 	State state;
 	int spot;
+	int alchCounter = 0;
+	
+	Spell highAlch = Normal.HIGH_LEVEL_ALCHEMY;
 
 	// list of worlds, may not be current since worlds get changed quite frequently
 	int[] worlds = { 302, 303, 304, 305, 306, 307, 309, 310, 311, 312, 313, 314, 315, 317, 318, 319, 320, 321, 322, 323,
@@ -38,6 +46,32 @@ public class HighAlcher extends AbstractScript {
 			log("logout");
 			Tabs.logout();
 			break;
+			
+		case ALCHING:
+			log("alching");
+			
+			Item item = Inventory.getItemInSlot(12);
+			
+			// Ban prevention: ensure we can alch before clicking
+			if(Magic.canCast(highAlch) && item != null) {
+				
+				// cast high alchemy
+				Magic.castSpell(highAlch);
+				
+				// Ban prevention: sleep in-between clicks
+				sleep(500,1000);
+				
+				// click on item in inventory slot 12
+				item.interact();
+				
+				// Ban prevention: sleep in-between clicks
+				sleep(100,300);
+				
+				// increment alch counter
+				alchCounter++;
+				
+				break;
+			}
 
 		}
 		return 0;
@@ -53,6 +87,15 @@ public class HighAlcher extends AbstractScript {
 
 		if (!Client.isLoggedIn()) {
 			state = State.STOP;
+		}
+		
+		// check that player has runes to cast high alchemy and there is item to alch at position 12
+		else if (Magic.canCast(highAlch) && Inventory.isSlotFull(12)) {
+			state = State.ALCHING;
+		}
+		
+		else if (Client.isLoggedIn() && (!Magic.canCast(highAlch) || !Inventory.isSlotFull(12))) {
+			state = State.LOGOUT;
 		}
 
 		return state;
@@ -94,8 +137,8 @@ public class HighAlcher extends AbstractScript {
 	public void onPaint(Graphics g) {
 		g.setColor(Color.RED);
 		g.setFont(new Font("Arial", Font.BOLD, 15));
-		//g.drawString("Kill count: " + killCounter, 15, 266);
-		//g.drawString("Enter String here", 15, 282);
+		g.drawString("Alch count: " + alchCounter, 15, 266);
+		g.drawString("Xp gained: ", + (alchCounter * 65), 282);
 	}
 
 }
