@@ -50,7 +50,7 @@ public class HighAlcher extends AbstractScript {
 		case ALCHING:
 			log("alching");
 			
-			Item item = Inventory.getItemInSlot(12);
+			Item item = Inventory.getItemInSlot(11);
 			
 			// Ban prevention: ensure we can alch before clicking
 			if(Magic.canCast(highAlch) && item != null) {
@@ -89,12 +89,12 @@ public class HighAlcher extends AbstractScript {
 			state = State.STOP;
 		}
 		
-		// check that player has runes to cast high alchemy and there is item to alch at position 12
-		else if (Magic.canCast(highAlch) && Inventory.isSlotFull(12)) {
+		// check that player has runes to cast high alchemy and there is item to alch at position 11
+		else if (Magic.canCast(highAlch) && Inventory.isSlotFull(11)) {
 			state = State.ALCHING;
 		}
 		
-		else if (Client.isLoggedIn() && (!Magic.canCast(highAlch) || !Inventory.isSlotFull(12))) {
+		else if (Client.isLoggedIn() && (!Magic.canCast(highAlch) || !Inventory.isSlotFull(11))) {
 			state = State.LOGOUT;
 		}
 
@@ -138,7 +138,7 @@ public class HighAlcher extends AbstractScript {
 		g.setColor(Color.RED);
 		g.setFont(new Font("Arial", Font.BOLD, 15));
 		g.drawString("Alch count: " + alchCounter, 15, 266);
-		g.drawString("Xp gained: ", + (alchCounter * 65), 282);
+		g.drawString("Xp gained: " + (alchCounter * 65), 15, 282);
 	}
 
 }
