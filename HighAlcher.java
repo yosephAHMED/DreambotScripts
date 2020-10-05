@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import org.dreambot.api.Client;
 import org.dreambot.api.input.Mouse;
 import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.input.Keyboard;
 import org.dreambot.api.methods.magic.Magic;
 import org.dreambot.api.methods.magic.Normal;
 import org.dreambot.api.methods.magic.Spell;
@@ -21,9 +22,15 @@ public class HighAlcher extends AbstractScript {
 	State state;
 	int spot;
 	int alchCounter = 0;
-	boolean moveMouseOutside = false;
+	boolean antiban = false;
 	
 	Spell highAlch = Normal.HIGH_LEVEL_ALCHEMY;
+	
+	String[] messages = {
+			"Lol ok bud",
+			"Nty",
+			"Buying yews 5gp ea",
+	};
 
 	// list of worlds, may not be current since worlds get changed quite frequently
 	int[] worlds = { 302, 303, 304, 305, 306, 307, 309, 310, 311, 312, 313, 314, 315, 317, 318, 319, 320, 321, 322, 323,
@@ -73,8 +80,8 @@ public class HighAlcher extends AbstractScript {
 				alchCounter++;
 				
 				// every 99-101 alch move mouse outside screen
-				if (alchCounter%randomNum(99,101) == 0)
-					moveMouseOutside = true;
+				if (alchCounter%randomNum(1,10) == 0)
+					antiban = true;
 				
 				break;
 			}
@@ -82,13 +89,28 @@ public class HighAlcher extends AbstractScript {
 		case ANTIBAN:
 			log("antiban");
 			
-			// imitate that human is doing something in a different window
-			Mouse.moveMouseOutsideScreen();
+			int antiban_method = randomNum(1,2);
 			
-			// keep mouse outside of window for 10 - 15 seconds
-			sleep(10000,15000);
+			switch(antiban_method) {
+			case 1:
+				// imitate that human is doing something in a different window
+				Mouse.moveMouseOutsideScreen();
+				
+				// keep mouse outside of window for 10 - 15 seconds
+				sleep(10000,15000);
+				
+				break;
+			case 2:
+				// imitate that human is talking in the chat
+				Keyboard.type(messages[randomNum(0,2)]);
+				
+				// take a short break after typing
+				sleep(3000,6000);
+				
+				break;
+			}
 			
-			moveMouseOutside = false;
+			antiban = false;
 			
 			break;
 			
@@ -110,7 +132,7 @@ public class HighAlcher extends AbstractScript {
 		
 		// check that player has runes to cast high alchemy and there is item to alch at position 11
 		else if (Magic.canCast(highAlch) && Inventory.isSlotFull(11)) {
-			if (!moveMouseOutside)
+			if (!antiban)
 				state = State.ALCHING;
 			else
 				state = State.ANTIBAN;
