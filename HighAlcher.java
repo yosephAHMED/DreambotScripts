@@ -59,13 +59,13 @@ public class HighAlcher extends AbstractScript {
 				Magic.castSpell(highAlch);
 				
 				// Ban prevention: sleep in-between clicks
-				sleep(500,1000);
+				sleep(1300,2000);
 				
 				// click on item in inventory slot 12
 				item.interact();
 				
 				// Ban prevention: sleep in-between clicks
-				sleep(100,300);
+				sleep(1000,2000);
 				
 				// increment alch counter
 				alchCounter++;
