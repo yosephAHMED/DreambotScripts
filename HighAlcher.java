@@ -3,6 +3,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 
 import org.dreambot.api.Client;
+import org.dreambot.api.input.Mouse;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.magic.Magic;
 import org.dreambot.api.methods.magic.Normal;
@@ -20,6 +21,7 @@ public class HighAlcher extends AbstractScript {
 	State state;
 	int spot;
 	int alchCounter = 0;
+	boolean moveMouseOutside = false;
 	
 	Spell highAlch = Normal.HIGH_LEVEL_ALCHEMY;
 
@@ -59,7 +61,7 @@ public class HighAlcher extends AbstractScript {
 				Magic.castSpell(highAlch);
 				
 				// Ban prevention: sleep in-between clicks
-				sleep(1300,2000);
+				sleep(1000,1300);
 				
 				// click on item in inventory slot 12
 				item.interact();
@@ -70,16 +72,33 @@ public class HighAlcher extends AbstractScript {
 				// increment alch counter
 				alchCounter++;
 				
+				// every 99-101 alch move mouse outside screen
+				if (alchCounter%randomNum(99,101) == 0)
+					moveMouseOutside = true;
+				
 				break;
 			}
-
+			
+		case ANTIBAN:
+			log("antiban");
+			
+			// imitate that human is doing something in a different window
+			Mouse.moveMouseOutsideScreen();
+			
+			// keep mouse outside of window for 10 - 15 seconds
+			sleep(10000,15000);
+			
+			moveMouseOutside = false;
+			
+			break;
+			
 		}
 		return 0;
 	}
 
 	// State names
 	private enum State {
-		STOP, LOGOUT, ALCHING
+		STOP, LOGOUT, ALCHING, ANTIBAN
 	}
 
 	// Checks if a certain condition is met, then return that state.
@@ -91,7 +110,10 @@ public class HighAlcher extends AbstractScript {
 		
 		// check that player has runes to cast high alchemy and there is item to alch at position 11
 		else if (Magic.canCast(highAlch) && Inventory.isSlotFull(11)) {
-			state = State.ALCHING;
+			if (!moveMouseOutside)
+				state = State.ALCHING;
+			else
+				state = State.ANTIBAN;
 		}
 		
 		else if (Client.isLoggedIn() && (!Magic.canCast(highAlch) || !Inventory.isSlotFull(11))) {
